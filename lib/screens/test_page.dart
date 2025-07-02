@@ -117,6 +117,7 @@ class _TestPageState extends State<TestPage> {
                 const Text('Birden fazla seçim işaretleyebilirsiniz.'),
                 const SizedBox(height: 8),
               ],
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -141,7 +142,8 @@ class _TestPageState extends State<TestPage> {
                             }
                           }
                         : null,
-                    child: Text(currentIndex + 1 < total ? 'İlerle' : 'Bitir'),
+                    child:
+                        Text(currentIndex + 1 < total ? 'İlerle' : 'Bitir'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: theme.primaryColor,
                       shape: const StadiumBorder(),

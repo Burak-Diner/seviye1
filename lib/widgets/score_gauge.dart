@@ -1,3 +1,5 @@
+// lib/widgets/score_gauge.dart
+
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 

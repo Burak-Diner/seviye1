@@ -1,3 +1,5 @@
+// lib/screens/start_test_page.dart
+
 import 'package:flutter/material.dart';
 import '../models/question.dart';
 import '../theme/app_theme.dart';
@@ -6,7 +8,11 @@ import 'test_page.dart';
 class StartTestPage extends StatelessWidget {
   final String sport;
   final List<Question> questions;
-  const StartTestPage({Key? key, required this.sport, required this.questions}) : super(key: key);
+  const StartTestPage({
+    Key? key,
+    required this.sport,
+    required this.questions,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +37,7 @@ class StartTestPage extends StatelessWidget {
               children: [
                 ElevatedButton(
                   onPressed: () async {
-                    final result = await Navigator.push<double>(
+                    final result = await Navigator.push<int>(
                       context,
                       MaterialPageRoute(
                         builder: (_) => TestPage(questions: questions),
@@ -46,7 +52,8 @@ class StartTestPage extends StatelessWidget {
                   ),
                   child: Text(
                     'Hemen Başla',
-                    style: theme.textTheme.titleMedium?.copyWith(color: Colors.white),
+                    style:
+                        theme.textTheme.titleMedium?.copyWith(color: Colors.white),
                   ),
                 ),
                 const SizedBox(height: 12),
