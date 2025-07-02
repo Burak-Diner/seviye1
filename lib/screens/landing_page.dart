@@ -15,6 +15,7 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> {
   final List<String> sports = ['Tenis', 'Futbol', 'Basketbol', 'Go Kart'];
+  // integer skor tutuyoruz
   final Map<String, int> scores = {};
 
   // Soru şablonları ve her bir şablonun seçenek/puanları
@@ -28,6 +29,7 @@ class _LandingPageState extends State<LandingPage> {
       'template': 'Cinsiyetiniz nedir?',
       'options': ['Kadın', 'Erkek', 'Diğer'],
       'scores': [1, 1, 1],
+      'multi': false,
     },
     {
       'template': 'Daha önce en fazla hangi seviyede yarışmaya katıldın?',
@@ -58,6 +60,7 @@ class _LandingPageState extends State<LandingPage> {
       'template': 'Kaç yaşındasın?',
       'options': ['< 18', '18–25', '26–40', '> 40'],
       'scores': [1, 2, 3, 4],
+      'multi': false,
     },
     {
       'template': '{sport} dışında başka spor etkinliğin ne düzeyde?',
@@ -68,15 +71,14 @@ class _LandingPageState extends State<LandingPage> {
 
   List<Question> _questionsForSport(String sport) {
     return _questionTemplates.map((tpl) {
-      final text = (tpl['template'] as String).replaceAll(
-        '{sport}',
-        sport.toLowerCase(),
-      );
+      final text = (tpl['template'] as String)
+          .replaceAll('{sport}', sport.toLowerCase());
       return Question(
         text: text,
         options: List<String>.from(tpl['options']),
         scores: List<int>.from(tpl['scores']),
-        isMultiSelect: true,
+        // if 'multi' yoksa default true
+        isMultiSelect: tpl['multi'] ?? true,
       );
     }).toList();
   }
@@ -111,7 +113,8 @@ class _LandingPageState extends State<LandingPage> {
           final hasScore = scores.containsKey(sport);
           return Container(
             margin: const EdgeInsets.symmetric(vertical: 8),
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            padding:
+                const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
             decoration: BoxDecoration(
               color: Colors.white10,
               borderRadius: BorderRadius.circular(16),
@@ -126,10 +129,8 @@ class _LandingPageState extends State<LandingPage> {
                         onPressed: () => _startTest(sport),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: theme.primaryColor,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           shape: const StadiumBorder(),
                         ),
                         child: Text(

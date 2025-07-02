@@ -1,15 +1,17 @@
+// lib/widgets/score_gauge.dart
+
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
 class ScoreGauge extends StatelessWidget {
-  final int score;
+  final double score;
   const ScoreGauge({Key? key, required this.score}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = AppTheme.themeData;
     const double width = 80;
-    final double position = (score.clamp(0, 10) / 10) * width;
+    final double position = (score.clamp(0.0, 10.0) / 10) * width;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -41,7 +43,7 @@ class ScoreGauge extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          '$score/10',
+          '${score.toStringAsFixed(1)}/10',
           style: theme.textTheme.bodySmall,
         ),
       ],

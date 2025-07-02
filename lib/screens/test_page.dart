@@ -24,25 +24,26 @@ class _TestPageState extends State<TestPage> {
   }
 
   void _finishTest() {
-    int totalScore = 0;
-    int maxScore = 0;
+    double totalScore = 0;
+    int totalSelections = 0;
+
     for (var i = 0; i < widget.questions.length; i++) {
       final q = widget.questions[i];
-      if (q.isMultiSelect) {
-        maxScore += q.scores.reduce((a, b) => a + b);
-        for (var idx in answers[i]) {
-          totalScore += q.scores[idx];
-        }
-      } else {
-        maxScore += q.scores.reduce(max);
-        if (answers[i].isNotEmpty) {
-          totalScore += q.scores[answers[i].first];
-        }
+      for (var idx in answers[i]) {
+        totalScore += q.scores[idx];
+        totalSelections++;
       }
     }
-    // 0-10 aralığına normalize et
-    final double normalized = (totalScore / maxScore) * 10;
-    final int displayScore = normalized.round();
+
+    if (totalSelections == 0) {
+      Navigator.pop(context, 0.0);
+      return;
+    }
+
+    final double average = totalScore / totalSelections;
+    const double maxPerOption = 4.0;
+    final double normalized = (average / maxPerOption) * 10;
+    final double displayScore = double.parse(normalized.toStringAsFixed(1));
 
     Navigator.pop(context, displayScore);
   }
@@ -112,8 +113,11 @@ class _TestPageState extends State<TestPage> {
               ),
 
               const SizedBox(height: 12),
-              const Text('Birden fazla seçim işaretleyebilirsiniz.'),
-              const SizedBox(height: 8),
+              if (q.isMultiSelect) ...[
+                const Text('Birden fazla seçim işaretleyebilirsiniz.'),
+                const SizedBox(height: 8),
+              ],
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -138,7 +142,8 @@ class _TestPageState extends State<TestPage> {
                             }
                           }
                         : null,
-                    child: Text(currentIndex + 1 < total ? 'İlerle' : 'Bitir'),
+                    child:
+                        Text(currentIndex + 1 < total ? 'İlerle' : 'Bitir'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: theme.primaryColor,
                       shape: const StadiumBorder(),
