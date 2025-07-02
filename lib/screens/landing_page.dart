@@ -17,6 +17,7 @@ class _LandingPageState extends State<LandingPage> {
   final List<String> sports = ['Tenis', 'Futbol', 'Basketbol', 'Go Kart'];
   final Map<String, double> scores = {};
 
+
   // Soru şablonları ve her bir şablonun seçenek/puanları
   static final _questionTemplates = <Map<String, dynamic>>[
     {
@@ -100,6 +101,7 @@ class _LandingPageState extends State<LandingPage> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     final theme = AppTheme.themeData;
@@ -118,20 +120,15 @@ class _LandingPageState extends State<LandingPage> {
               color: Colors.white10,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(sport, style: theme.textTheme.titleMedium),
-                hasScore
-                    ? ScoreGauge(score: scores[sport]!)
-                    : ElevatedButton(
-                        onPressed: () => _startTest(sport),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.primaryColor,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
+        children: sports.map((sport) {
+          final hasScore = scores.containsKey(sport);
+          return Container(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            decoration: BoxDecoration(
+              color: Colors.white10,
+              borderRadius: BorderRadius.circular(16),
+            ),),
                           shape: const StadiumBorder(),
                         ),
                         child: Text(
