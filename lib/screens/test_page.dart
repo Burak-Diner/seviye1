@@ -15,26 +15,29 @@ class TestPage extends StatefulWidget {
 
 class _TestPageState extends State<TestPage> {
   int currentIndex = 0;
-  late List<int?> answers;
+  late List<Set<int>> answers;
 
   @override
   void initState() {
     super.initState();
-    answers = List<int?>.filled(widget.questions.length, null);
+    answers = List.generate(widget.questions.length, (_) => <int>{});
   }
 
   void _finishTest() {
     int totalScore = 0;
     int maxScore = 0;
-    // Her sorunun en yüksek puanını hesapla
-    for (var q in widget.questions) {
-      maxScore += q.scores.reduce(max);
-    }
-    // Kullanıcının seçtiği puanları topla
     for (var i = 0; i < widget.questions.length; i++) {
-      final ans = answers[i];
-      if (ans != null) {
-        totalScore += widget.questions[i].scores[ans];
+      final q = widget.questions[i];
+      if (q.isMultiSelect) {
+        maxScore += q.scores.reduce((a, b) => a + b);
+        for (var idx in answers[i]) {
+          totalScore += q.scores[idx];
+        }
+      } else {
+        maxScore += q.scores.reduce(max);
+        if (answers[i].isNotEmpty) {
+          totalScore += q.scores[answers[i].first];
+        }
       }
     }
     // 0-10 aralığına normalize et
@@ -49,7 +52,7 @@ class _TestPageState extends State<TestPage> {
     final theme = AppTheme.themeData;
     final q = widget.questions[currentIndex];
     final total = widget.questions.length;
-    final sel = answers[currentIndex];
+    final selSet = answers[currentIndex];
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -86,21 +89,31 @@ class _TestPageState extends State<TestPage> {
               Expanded(
                 child: ListView.builder(
                   itemCount: q.options.length,
-                  itemBuilder:
-                      (_, i) => _OptionTile(
-                        text: q.options[i],
-                        isSelected: sel == i,
-                        onTap: () {
-                          setState(() {
-                            answers[currentIndex] = i;
-                          });
-                        },
-                      ),
+                  itemBuilder: (_, i) => _OptionTile(
+                    text: q.options[i],
+                    isSelected: selSet.contains(i),
+                    onTap: () {
+                      setState(() {
+                        if (q.isMultiSelect) {
+                          if (selSet.contains(i)) {
+                            selSet.remove(i);
+                          } else {
+                            selSet.add(i);
+                          }
+                        } else {
+                          selSet
+                            ..clear()
+                            ..add(i);
+                        }
+                      });
+                    },
+                  ),
                 ),
               ),
 
               const SizedBox(height: 12),
-              // Alt butonlar
+              const Text('Birden fazla seçim işaretleyebilirsiniz.'),
+              const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -108,7 +121,7 @@ class _TestPageState extends State<TestPage> {
                     TextButton.icon(
                       onPressed: () => setState(() => currentIndex--),
                       icon: const Icon(Icons.arrow_back),
-                      label: const Text('Geri'),
+                      label: const Text('Geri Gel'),
                       style: TextButton.styleFrom(
                         foregroundColor: theme.primaryColor,
                       ),
@@ -116,16 +129,15 @@ class _TestPageState extends State<TestPage> {
                   else
                     const SizedBox(width: 80),
                   ElevatedButton(
-                    onPressed:
-                        sel != null
-                            ? () {
-                              if (currentIndex + 1 < total) {
-                                setState(() => currentIndex++);
-                              } else {
-                                _finishTest();
-                              }
+                    onPressed: selSet.isNotEmpty
+                        ? () {
+                            if (currentIndex + 1 < total) {
+                              setState(() => currentIndex++);
+                            } else {
+                              _finishTest();
                             }
-                            : null,
+                          }
+                        : null,
                     child: Text(currentIndex + 1 < total ? 'İlerle' : 'Bitir'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: theme.primaryColor,
@@ -187,6 +199,9 @@ class _OptionTile extends StatelessWidget {
                 ),
                 color: isSelected ? primary : Colors.white,
               ),
+              child: isSelected
+                  ? const Icon(Icons.check, size: 16, color: Colors.white)
+                  : null,
             ),
             const SizedBox(width: 12),
             Expanded(
