@@ -1,8 +1,8 @@
 // lib/screens/test_page.dart
 
-import 'dart:math';
 import 'package:flutter/material.dart';
 import '../models/question.dart';
+import '../services/score_service.dart';
 import '../theme/app_theme.dart';
 
 class TestPage extends StatefulWidget {
@@ -24,28 +24,9 @@ class _TestPageState extends State<TestPage> {
   }
 
   void _finishTest() {
-    double totalScore = 0;
-    int totalSelections = 0;
-
-    for (var i = 0; i < widget.questions.length; i++) {
-      final q = widget.questions[i];
-      for (var idx in answers[i]) {
-        totalScore += q.scores[idx];
-        totalSelections++;
-      }
-    }
-
-    if (totalSelections == 0) {
-      Navigator.pop(context, 0.0);
-      return;
-    }
-
-    final double average = totalScore / totalSelections;
-    const double maxPerOption = 4.0;
-    final double normalized = (average / maxPerOption) * 10;
-    final double displayScore = double.parse(normalized.toStringAsFixed(1));
-
-    Navigator.pop(context, displayScore);
+   final score =
+        ScoreService.calculateScore(widget.questions, answers);
+    Navigator.pop(context, score);
   }
 
   @override
@@ -117,7 +98,7 @@ class _TestPageState extends State<TestPage> {
                 const Text('Birden fazla seçim işaretleyebilirsiniz.'),
                 const SizedBox(height: 8),
               ],
-
+              
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

@@ -15,8 +15,8 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> {
   final List<String> sports = ['Tenis', 'Futbol', 'Basketbol', 'Go Kart'];
-  // integer skor tutuyoruz
-  final Map<String, int> scores = {};
+  final Map<String, double> scores = {};
+
 
   // Soru şablonları ve her bir şablonun seçenek/puanları
   static final _questionTemplates = <Map<String, dynamic>>[
@@ -71,20 +71,21 @@ class _LandingPageState extends State<LandingPage> {
 
   List<Question> _questionsForSport(String sport) {
     return _questionTemplates.map((tpl) {
-      final text = (tpl['template'] as String)
-          .replaceAll('{sport}', sport.toLowerCase());
+      final text = (tpl['template'] as String).replaceAll(
+        '{sport}',
+        sport.toLowerCase(),
+      );
       return Question(
         text: text,
         options: List<String>.from(tpl['options']),
         scores: List<int>.from(tpl['scores']),
-        // if 'multi' yoksa default true
         isMultiSelect: tpl['multi'] ?? true,
       );
     }).toList();
   }
 
   void _startTest(String sport) async {
-    final result = await Navigator.push<int>(
+    final result = await Navigator.push<double>(
       context,
       MaterialPageRoute(
         builder: (_) => StartTestPage(
@@ -100,6 +101,7 @@ class _LandingPageState extends State<LandingPage> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     final theme = AppTheme.themeData;
@@ -113,24 +115,20 @@ class _LandingPageState extends State<LandingPage> {
           final hasScore = scores.containsKey(sport);
           return Container(
             margin: const EdgeInsets.symmetric(vertical: 8),
-            padding:
-                const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
             decoration: BoxDecoration(
               color: Colors.white10,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(sport, style: theme.textTheme.titleMedium),
-                hasScore
-                    ? ScoreGauge(score: scores[sport]!)
-                    : ElevatedButton(
-                        onPressed: () => _startTest(sport),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.primaryColor,
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        children: sports.map((sport) {
+          final hasScore = scores.containsKey(sport);
+          return Container(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            decoration: BoxDecoration(
+              color: Colors.white10,
+              borderRadius: BorderRadius.circular(16),
+            ),),
                           shape: const StadiumBorder(),
                         ),
                         child: Text(
