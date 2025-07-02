@@ -31,7 +31,7 @@ class StartTestPage extends StatelessWidget {
               children: [
                 ElevatedButton(
                   onPressed: () async {
-                    final result = await Navigator.push<int>(
+                    final result = await Navigator.push<double>(
                       context,
                       MaterialPageRoute(
                         builder: (_) => TestPage(questions: questions),

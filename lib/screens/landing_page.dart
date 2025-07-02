@@ -15,7 +15,7 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> {
   final List<String> sports = ['Tenis', 'Futbol', 'Basketbol', 'Go Kart'];
-  final Map<String, int> scores = {};
+  final Map<String, double> scores = {};
 
   // Soru şablonları ve her bir şablonun seçenek/puanları
   static final _questionTemplates = <Map<String, dynamic>>[
@@ -82,7 +82,7 @@ class _LandingPageState extends State<LandingPage> {
   }
 
   void _startTest(String sport) async {
-    final result = await Navigator.push<int>(
+    final result = await Navigator.push<double>(
       context,
       MaterialPageRoute(
         builder: (_) => StartTestPage(
