@@ -1,0 +1,206 @@
+// lib/screens/test_page.dart
+
+import 'dart:math';
+import 'package:flutter/material.dart';
+import '../models/question.dart';
+import '../theme/app_theme.dart';
+
+class TestPage extends StatefulWidget {
+  final List<Question> questions;
+  const TestPage({Key? key, required this.questions}) : super(key: key);
+
+  @override
+  State<TestPage> createState() => _TestPageState();
+}
+
+class _TestPageState extends State<TestPage> {
+  int currentIndex = 0;
+  late List<int?> answers;
+
+  @override
+  void initState() {
+    super.initState();
+    answers = List<int?>.filled(widget.questions.length, null);
+  }
+
+  void _finishTest() {
+    int totalScore = 0;
+    int maxScore = 0;
+    // Her sorunun en yüksek puanını hesapla
+    for (var q in widget.questions) {
+      maxScore += q.scores.reduce(max);
+    }
+    // Kullanıcının seçtiği puanları topla
+    for (var i = 0; i < widget.questions.length; i++) {
+      final ans = answers[i];
+      if (ans != null) {
+        totalScore += widget.questions[i].scores[ans];
+      }
+    }
+    // 0-10 aralığına normalize et
+    final double normalized = (totalScore / maxScore) * 10;
+    final int displayScore = normalized.round();
+
+    Navigator.pop(context, displayScore);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = AppTheme.themeData;
+    final q = widget.questions[currentIndex];
+    final total = widget.questions.length;
+    final sel = answers[currentIndex];
+
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Progress bar
+              LinearProgressIndicator(
+                value: (currentIndex + 1) / total,
+                backgroundColor: Colors.grey[200],
+                valueColor: AlwaysStoppedAnimation(theme.primaryColor),
+                minHeight: 6,
+              ),
+              const SizedBox(height: 12),
+
+              // Soru sayacı
+              Text(
+                '${currentIndex + 1}/$total',
+                style: theme.textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 16),
+
+              // Soru metni
+              Text(
+                q.text,
+                style: theme.textTheme.titleLarge?.copyWith(fontSize: 20),
+              ),
+              const SizedBox(height: 24),
+
+              // Seçenekler
+              Expanded(
+                child: ListView.builder(
+                  itemCount: q.options.length,
+                  itemBuilder:
+                      (_, i) => _OptionTile(
+                        text: q.options[i],
+                        isSelected: sel == i,
+                        onTap: () {
+                          setState(() {
+                            answers[currentIndex] = i;
+                          });
+                        },
+                      ),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+              // Alt butonlar
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (currentIndex > 0)
+                    TextButton.icon(
+                      onPressed: () => setState(() => currentIndex--),
+                      icon: const Icon(Icons.arrow_back),
+                      label: const Text('Geri'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: theme.primaryColor,
+                      ),
+                    )
+                  else
+                    const SizedBox(width: 80),
+                  ElevatedButton(
+                    onPressed:
+                        sel != null
+                            ? () {
+                              if (currentIndex + 1 < total) {
+                                setState(() => currentIndex++);
+                              } else {
+                                _finishTest();
+                              }
+                            }
+                            : null,
+                    child: Text(currentIndex + 1 < total ? 'İlerle' : 'Bitir'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.primaryColor,
+                      shape: const StadiumBorder(),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 14,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _OptionTile extends StatelessWidget {
+  final String text;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _OptionTile({
+    Key? key,
+    required this.text,
+    required this.isSelected,
+    required this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = AppTheme.themeData.primaryColor;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 6),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        decoration: BoxDecoration(
+          color: isSelected ? primary.withOpacity(0.1) : Colors.grey[100],
+          border: Border.all(
+            color: isSelected ? primary : Colors.grey[300]!,
+            width: 1.5,
+          ),
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected ? primary : Colors.grey[400]!,
+                  width: 2,
+                ),
+                color: isSelected ? primary : Colors.white,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                text,
+                style: TextStyle(
+                  color: isSelected ? primary : Colors.black87,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
